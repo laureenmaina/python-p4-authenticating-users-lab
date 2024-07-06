@@ -40,14 +40,15 @@ class ShowArticle(Resource):
 
 class Login(Resource):
     def post(self):
-        user = User.query.filter_by(username=request.get_json()['username']).first()
+        user = User.query.filter_by(username=request.get_json().get('username')).first()
         if user:
-              session['user_id'] = user.id
-              response=make_response(user.to_dict(), 200)
-              return response
-            
+            session['user_id'] = user.id
+            response = make_response(user.to_dict(), 200)
+            response.headers['Content-Type'] = 'application/json'
+            return response
         else:
             return {'message': 'User not found'}, 404
+
 
 class Logout(Resource):
     def delete(self):
@@ -56,14 +57,15 @@ class Logout(Resource):
 
 class CheckSession(Resource):
     def get(self):
-        user = User.query.filter(User.id == session['user_id']).first()
+        user = User.query.filter(User.id == session.get('user_id')).first()
         if user:
-            response=make_response(user.to_dict(),200)
+            response = make_response(user.to_dict(), 200)
+            response.headers['Content-Type'] = 'application/json'
             return response
         else:
-            response=make_response({},401)
-
-        return response
+            response = make_response({}, 401)
+            response.headers['Content-Type'] = 'application/json'
+            return response
     
 
 api.add_resource(ClearSession, '/clear')
